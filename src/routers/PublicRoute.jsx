@@ -5,7 +5,7 @@ const PublicRoute = ({ children })=> {
     const {user}= useAuthStore();
 
     if(user){
-        return <Navigate to = "/home" replace/>
+        return <Navigate to = "/roptai" replace/>
     }
     return children;
 }
