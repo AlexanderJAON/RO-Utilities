@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter , Navigate } from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
 import ROPTAI from "../roptai/ROPTAI";
@@ -17,7 +17,10 @@ const Router = createBrowserRouter([
             </>
         )
     },
-    
+    {
+        path: "*", // Captura cualquier ruta desconocida
+        element: <Navigate to="/roptai" replace />,
+    }
 
 ]);
 
