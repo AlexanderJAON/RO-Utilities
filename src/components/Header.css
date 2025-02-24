@@ -22,31 +22,36 @@
 }
 
 .logo img {
-  width: 120px;  /* Tamaño optimizado para móviles */
+  width: 50px;  /* Tamaño optimizado para móviles */
   height: auto;  /* Mantiene la proporción */
   cursor: pointer;
 }
 
 /* Menú */
 .menu {
-  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 1000px; /* Evita que el botón se mueva demasiado */
 }
 
 /* Botón del menú */
 .menu-button {
   background: none;
+  right: 30px ;
   border: none;
   color: #6CB33F;
-  font-size: 28px; /* Tamaño más adecuado para móviles */
+  font-size: 70px; /* Ajuste de tamaño */
   cursor: pointer;
-  padding: 5px;
+  padding: 4px;
+  position: relative;
+  z-index: 1001; /* Asegura que se mantenga visible */
 }
 
 /* Menú desplegable */
 .menu-dropdown {
   position: absolute;
-  right: 0;
-  top: 45px;
+  right: 45px;
+  top: 55px;
   background: white;
   list-style: none;
   padding: 0;
@@ -64,12 +69,12 @@
 .menu-dropdown button {
   background: none;
   border: none;
-  padding: 12px 20px;
+  padding: 10px 20px;
   width: 100%;
   text-align: left;
   cursor: pointer;
   color: #6CB33F;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .menu-dropdown button:hover {
@@ -82,12 +87,12 @@
     padding: 8px 12px;
   }
 
-  .logo img {
-    width: 100px; /* Reduce el tamaño del logo en pantallas pequeñas */
+  .menu {
+    max-width: 50px; /* Ajusta el ancho del contenedor del botón */
   }
 
   .menu-button {
-    font-size: 24px;
+    font-size: 35px;
   }
 
   .menu-dropdown {
