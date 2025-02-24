@@ -3,9 +3,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #007A33; /* Verde Ingredion */
+  background-color: #ffffff; /* Verde Ingredion */
   color: white;
-  padding: 10px 20px;
+  padding: 10px 15px;
   font-family: Arial, sans-serif;
   position: fixed;
   width: 100%;
@@ -17,7 +17,13 @@
 
 /* Logo */
 .logo {
-  font-size: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 120px;  /* Tamaño optimizado para móviles */
+  height: auto;  /* Mantiene la proporción */
   cursor: pointer;
 }
 
@@ -26,19 +32,21 @@
   position: relative;
 }
 
+/* Botón del menú */
 .menu-button {
   background: none;
   border: none;
-  color: white;
-  font-size: 24px;
+  color: #6CB33F;
+  font-size: 28px; /* Tamaño más adecuado para móviles */
   cursor: pointer;
+  padding: 5px;
 }
 
 /* Menú desplegable */
 .menu-dropdown {
   position: absolute;
   right: 0;
-  top: 40px;
+  top: 45px;
   background: white;
   list-style: none;
   padding: 0;
@@ -46,6 +54,7 @@
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  min-width: 180px;
 }
 
 .menu-dropdown li {
@@ -55,11 +64,11 @@
 .menu-dropdown button {
   background: none;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 20px;
   width: 100%;
   text-align: left;
   cursor: pointer;
-  color: #007A33;
+  color: #6CB33F;
   font-size: 16px;
 }
 
@@ -70,11 +79,18 @@
 /* Diseño responsive */
 @media (max-width: 768px) {
   .header {
-    flex-direction: row;
-    padding: 10px;
+    padding: 8px 12px;
+  }
+
+  .logo img {
+    width: 100px; /* Reduce el tamaño del logo en pantallas pequeñas */
+  }
+
+  .menu-button {
+    font-size: 24px;
   }
 
   .menu-dropdown {
-    width: 200px;
+    width: 160px;
   }
 }

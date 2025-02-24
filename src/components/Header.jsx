@@ -14,7 +14,7 @@ function Header() {
 
   return (
     <header className="header">
-      <div className="logo" onClick={goToHome}>🔵</div>
+      <div className="logo" onClick={goToHome}><img src="/images/ingredion.png" alt="" /></div>
       <nav className="menu">
         <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
         {menuOpen && (
