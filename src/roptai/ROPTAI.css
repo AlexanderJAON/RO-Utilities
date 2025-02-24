@@ -1,0 +1,74 @@
+/* Contenedor principal */
+.inspection-container {
+    background-color: #F4F4F4; /* Fondo gris claro */
+    color: #007A33; /* Verde Ingredion */
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 80px auto 20px auto;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Pregunta de inspección */
+  .inspection-question p {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* Botones de respuesta */
+  .response-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .response-buttons button {
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+  }
+  
+  /* Colores de los botones */
+  .response-buttons button:nth-child(1) {
+    background-color: #007A33; /* Verde Ingredion */
+    color: white;
+  }
+  
+  .response-buttons button:nth-child(2) {
+    background-color: #ec4218; /* Amarillo Ingredion */
+    color: black;
+  }
+  
+  .response-buttons button:nth-child(3) {
+    background-color: #dbd949; /* Gris claro */
+    color: black;
+  }
+  
+  /* Hover */
+  .response-buttons button:hover {
+    opacity: 0.8;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .inspection-container {
+      width: 90%;
+      padding: 15px;
+    }
+  
+    .inspection-question p {
+      font-size: 16px;
+    }
+  
+    .response-buttons button {
+      font-size: 14px;
+      padding: 10px;
+    }
+  }
+  
