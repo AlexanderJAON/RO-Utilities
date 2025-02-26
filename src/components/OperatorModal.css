@@ -1,0 +1,97 @@
+/* Asegurar que todo el contenido dentro del modal respete su tamaño */
+.modal-content * {
+    box-sizing: border-box;
+  }
+  
+  /* Contenedor principal del modal */
+  .modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Contenido del modal */
+  .modal-content {
+    background-color: #F4F4F4; /* Gris claro */
+    color: #6CB33F; /* Verde Ingredion */
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Título del modal */
+  .modal-content h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  
+  /* Contenedor de los inputs para evitar desbordamientos */
+  .modal-content input,
+  .modal-content select {
+    width: calc(100% - 20px); /* Evita que el padding haga que se salga del contenedor */
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #6CB33F;
+    border-radius: 6px;
+    font-size: 16px;
+    background: white;
+    color: black;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Estilo del botón */
+  .modal-content button {
+    background-color: #6CB33F; /* Verde Ingredion */
+    color: white;
+    font-size: 16px;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s ease, transform 0.2s ease-in-out;
+    font-weight: bold;
+  }
+  
+  /* Efecto Hover */
+  .modal-content button:hover {
+    background-color: #558A2F;
+    transform: scale(1.05);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .modal-content {
+      width: 90%;
+      padding: 15px;
+    }
+  
+    .modal-content h2 {
+      font-size: 18px;
+    }
+  
+    .modal-content input,
+    .modal-content select {
+      font-size: 14px;
+      padding: 8px;
+    }
+  
+    .modal-content button {
+      font-size: 14px;
+      padding: 10px;
+    }
+  }
+  
