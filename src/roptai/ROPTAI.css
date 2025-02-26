@@ -5,7 +5,7 @@
   padding: 20px;
   border-radius: 10px;
   max-width: 600px;
-  margin: 90px 50% 20px 50%; /* Ajuste para no quedar tapado por el header */
+  margin: 90px auto 20px; /* Ajuste para no quedar tapado por el header */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   font-family: Arial, sans-serif;
