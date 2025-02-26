@@ -15,6 +15,13 @@
   z-index: 1000;
 }
 
+.htittle {
+display: flex;
+color: #6CB33F;
+font-size: 20px;
+
+}
+
 /* Logo */
 .logo {
   display: flex;
