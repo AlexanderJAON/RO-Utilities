@@ -31,7 +31,7 @@ right: 10px ;
 }
 
 .logo img {
-  width: 40px;  /* Tamaño optimizado para móviles */
+  width: 36px;  /* Tamaño optimizado para móviles */
   height: auto;  /* Mantiene la proporción */
   cursor: pointer;
 }
@@ -101,7 +101,7 @@ right: 10px ;
   }
 
   .menu-button {
-    font-size: 35px;
+    font-size: 36px;
   }
 
   .menu-dropdown {
