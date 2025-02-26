@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import "./OperatorModal.css";
 
-const OperatorModal = ({ onSubmit }) => {
-  const [operatorName, setOperatorName] = useState("");
-  const [shift, setShift] = useState("");
+const OperatorModal = ({ setOperatorName, setShift }) => {
+  const [operator, setOperator] = useState("");
+  const [selectedShift, setSelectedShift] = useState("");
 
   const handleConfirm = () => {
-    if (operatorName && shift) {
-      onSubmit(operatorName, shift);
+    if (operator && selectedShift) {
+      setOperatorName(operator);
+      setShift(selectedShift);
     } else {
       alert("Por favor, ingrese su nombre y seleccione un turno.");
     }
@@ -20,10 +21,10 @@ const OperatorModal = ({ onSubmit }) => {
         <input
           type="text"
           placeholder="Nombre del operario"
-          value={operatorName}
-          onChange={(e) => setOperatorName(e.target.value)}
+          value={operator}
+          onChange={(e) => setOperator(e.target.value)}
         />
-        <select value={shift} onChange={(e) => setShift(e.target.value)}>
+        <select value={selectedShift} onChange={(e) => setSelectedShift(e.target.value)}>
           <option value="">Seleccione un turno</option>
           <option value="mañana">Mañana</option>
           <option value="tarde">Tarde</option>
