@@ -22,7 +22,7 @@
 }
 
 .logo img {
-  width: 50px;  /* Tamaño optimizado para móviles */
+  width: 40px;  /* Tamaño optimizado para móviles */
   height: auto;  /* Mantiene la proporción */
   cursor: pointer;
 }
