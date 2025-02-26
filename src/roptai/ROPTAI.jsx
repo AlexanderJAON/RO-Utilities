@@ -1,31 +1,42 @@
 import { useState } from "react";
-import "./ROPTAI.css";
+import useInspectionQuestions from "../hooks/useInspectionQuestions";
 import OperatorModal from "../components/OperatorModal";
+import "./ROPTAI.css";
+
+const questions = [
+  "Verificar que la bomba dosificadora de cloro para el agua oxidada esté encendida",
+  "Comprobar el nivel de cloro en el tanque",
+  "Revisar la presión del sistema de dosificación"
+];
 
 function ROPTAI() {
-  const [operatorData, setOperatorData] = useState(null);
-
-  const handleOperatorSubmit = (name, shift) => {
-    setOperatorData({ name, shift });
-  };
-
-  if (!operatorData) {
-    return <OperatorModal onSubmit={handleOperatorSubmit} />;
-  }
+  const { currentQuestion, handleSelection, selectedOption } = useInspectionQuestions(questions);
+  const [operatorName, setOperatorName] = useState("");
+  const [shift, setShift] = useState("");
 
   return (
-    <main className="inspection-container">
-      <div className="inspection-question">
-        <p>
-          Verificar que la bomba dosificadora de cloro para el agua oxidada esté encendida
-        </p>
-      </div>
-      <div className="response-buttons">
-        <button onClick={() => console.log("No se encontró anomalía")}>No se encontró anomalía</button>
-        <button onClick={() => console.log("Se encontró anomalía")}>Se encontró anomalía</button>
-        <button onClick={() => console.log("No se realizó")}>No se realizó</button>
-      </div>
-    </main>
+    <>
+      {!operatorName || !shift ? (
+        <OperatorModal setOperatorName={setOperatorName} setShift={setShift} />
+      ) : (
+        <main className="inspection-container">
+          <div className="inspection-question">
+            <p>{currentQuestion}</p>
+          </div>
+          <div className="response-buttons">
+            <button onClick={() => handleSelection("No se encontró anomalía")}>
+              No se encontró anomalía
+            </button>
+            <button onClick={() => handleSelection("Se encontró anomalía")}>
+              Se encontró anomalía
+            </button>
+            <button onClick={() => handleSelection("No se realizó")}>
+              No se realizó
+            </button>
+          </div>
+        </main>
+      )}
+    </>
   );
 }
 
