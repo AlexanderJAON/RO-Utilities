@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 function QRModal({ setQrScanned }) {
   const videoRef = useRef(null);
   const [error, setError] = useState("");
-  const [isScanning, setIsScanning] = useState(true); // Controla si se puede escanear
+  const [isScanning, setIsScanning] = useState(true);
   const navigate = useNavigate();
 
   // Mapeo de códigos QR a rutas de la aplicación
@@ -12,7 +12,7 @@ function QRModal({ setQrScanned }) {
     "https://ro-utilities.vercel.app/roptai": "/roptai",
     "https://ro-utilities.vercel.app/roptar": "/roptar",
     "https://tu-web.com/configuracion": "/configuracion",
-    "custom-code-123": "/personalizado", // Puedes usar códigos personalizados
+    "custom-code-123": "/personalizado",
   };
 
   useEffect(() => {
@@ -21,6 +21,7 @@ function QRModal({ setQrScanned }) {
       return;
     }
 
+    let active = true; // Variable para controlar si el escaneo sigue activo
     const barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
 
     navigator.mediaDevices
@@ -32,7 +33,7 @@ function QRModal({ setQrScanned }) {
         }
 
         const scan = async () => {
-          if (!videoRef.current || !isScanning) return;
+          if (!videoRef.current || !isScanning || !active) return;
 
           const track = stream.getVideoTracks()[0];
           const imageCapture = new ImageCapture(track);
@@ -44,34 +45,28 @@ function QRModal({ setQrScanned }) {
               if (barcodes.length > 0) {
                 const qrValue = barcodes[0].rawValue;
 
-                // Verificar si el código escaneado está en la lista
                 if (qrRoutes[qrValue]) {
-                  setIsScanning(false); // Bloquear nuevos escaneos
+                  setIsScanning(false);
+                  active = false; // Desactivar más escaneos
                   setQrScanned(true);
-                  navigate(qrRoutes[qrValue]); // Redirige a la ruta correspondiente
+                  navigate(qrRoutes[qrValue]);
 
                   // Detener la cámara
                   stream.getTracks().forEach((track) => track.stop());
-
-                  // Permitir un nuevo escaneo después de un tiempo
-                  setTimeout(() => {
-                    setIsScanning(true);
-                  }, 2000); // 3 segundos de espera antes de volver a escanear
                 } else {
                   setError("Código QR no reconocido.");
                 }
               }
             })
             .catch((err) => console.error(err));
-
-          requestAnimationFrame(scan);
         };
 
-        scan();
+        setTimeout(scan, 500); // Pequeño retraso para evitar spam de escaneo
       })
       .catch((err) => setError("No se pudo acceder a la cámara."));
 
     return () => {
+      active = false; // Evitar que el escaneo siga después de desmontar el componente
       if (videoRef.current && videoRef.current.srcObject) {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
