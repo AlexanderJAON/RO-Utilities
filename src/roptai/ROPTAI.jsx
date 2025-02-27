@@ -32,39 +32,42 @@ function ROPTAI() {
         <OperatorModal setOperatorName={setOperatorName} setShift={setShift} />
       ) : (
         <main className="inspection-container">
-          <div className="inspection-question">
-            <p>{showAnomalyInput ? "Describa la anomalía" : currentQuestion}</p>
-          </div>
+          {/* Sección fija para que el tamaño no cambie */}
+          <div className="inspection-content">
+            <div className="inspection-question">
+              <p>{showAnomalyInput ? "Describa la anomalía" : currentQuestion}</p>
+            </div>
 
-          <div className="response-buttons">
-            {!showAnomalyInput ? (
-              <>
-                <button onClick={() => handleQuestionSelection("No se encontró anomalía")}>
-                  No se encontró anomalía
-                </button>
-                <button onClick={() => handleSelection("Se encontró anomalía")}>
-                  Se encontró anomalía
-                </button>
-                <button onClick={() => handleSelection("No se realizó")}>
-                  No se realizó
-                </button>
-              </>
-            ) : !showNoticeQuestion ? (
-              <>
-                <textarea
-                  placeholder="Describa la anomalía"
-                  value={anomalyDescription}
-                  onChange={(e) => setAnomalyDescription(e.target.value)}
-                />
-                <button onClick={handleAnomalySubmit}>Aceptar</button>
-              </>
-            ) : (
-              <>
-                <p>¿Se realizó aviso?</p>
-                <button onClick={() => setNoticeGiven("Sí")}>Sí</button>
-                <button onClick={() => setNoticeGiven("No")}>No</button>
-              </>
-            )}
+            <div className="response-buttons">
+              {!showAnomalyInput ? (
+                <>
+                  <button onClick={() => handleQuestionSelection("No se encontró anomalía")}>
+                    No se encontró anomalía
+                  </button>
+                  <button onClick={() => handleSelection("Se encontró anomalía")}>
+                    Se encontró anomalía
+                  </button>
+                  <button onClick={() => handleSelection("No se realizó")}>
+                    No se realizó
+                  </button>
+                </>
+              ) : !showNoticeQuestion ? (
+                <>
+                  <textarea
+                    placeholder="Describa la anomalía"
+                    value={anomalyDescription}
+                    onChange={(e) => setAnomalyDescription(e.target.value)}
+                  />
+                  <button onClick={handleAnomalySubmit}>Aceptar</button>
+                </>
+              ) : (
+                <>
+                  <p>¿Se realizó aviso?</p>
+                  <button onClick={() => setNoticeGiven("Sí")}>Sí</button>
+                  <button onClick={() => setNoticeGiven("No")}>No</button>
+                </>
+              )}
+            </div>
           </div>
         </main>
       )}
