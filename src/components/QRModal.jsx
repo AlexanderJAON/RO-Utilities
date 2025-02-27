@@ -1,9 +1,19 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function QRModal({ setQrScanned, onQrDetected }) {
+function QRModal({ setQrScanned }) {
   const videoRef = useRef(null);
   const [error, setError] = useState("");
-  const [isScanning, setIsScanning] = useState(true);
+  const [isScanning, setIsScanning] = useState(true); // Controla si se puede escanear
+  const navigate = useNavigate();
+
+  // Mapeo de códigos QR a rutas de la aplicación
+  const qrRoutes = {
+    "https://ro-utilities.vercel.app/roptai": "/roptai",
+    "https://ro-utilities.vercel.app/roptar": "/roptar",
+    "https://tu-web.com/configuracion": "/configuracion",
+    "custom-code-123": "/personalizado", // Puedes usar códigos personalizados
+  };
 
   useEffect(() => {
     if (!("BarcodeDetector" in window)) {
@@ -34,24 +44,27 @@ function QRModal({ setQrScanned, onQrDetected }) {
               if (barcodes.length > 0) {
                 const qrValue = barcodes[0].rawValue;
 
-                // Desactivar escaneo para evitar múltiples lecturas rápidas
-                setIsScanning(false); 
+                // Verificar si el código escaneado está en la lista
+                if (qrRoutes[qrValue]) {
+                  setIsScanning(false); // Bloquear nuevos escaneos
+                  setQrScanned(true);
+                  navigate(qrRoutes[qrValue]); // Redirige a la ruta correspondiente
 
-                // Cerrar la cámara
-                stream.getTracks().forEach((track) => track.stop());
+                  // Detener la cámara
+                  stream.getTracks().forEach((track) => track.stop());
 
-                // Llamar a la función que maneja el QR detectado
-                onQrDetected(qrValue);
-
-                // Agregar un retraso antes de volver a escanear
-                setTimeout(() => {
-                  setIsScanning(true);
-                }, 3000); // 3 segundos de espera
-              } else {
-                requestAnimationFrame(scan);
+                  // Permitir un nuevo escaneo después de un tiempo
+                  setTimeout(() => {
+                    setIsScanning(true);
+                  }, 2000); // 3 segundos de espera antes de volver a escanear
+                } else {
+                  setError("Código QR no reconocido.");
+                }
               }
             })
             .catch((err) => console.error(err));
+
+          requestAnimationFrame(scan);
         };
 
         scan();
@@ -63,7 +76,7 @@ function QRModal({ setQrScanned, onQrDetected }) {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [isScanning, onQrDetected]);
+  }, [setQrScanned, navigate, isScanning]);
 
   return (
     <div className="modal">
