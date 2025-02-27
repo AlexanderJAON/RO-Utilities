@@ -6,6 +6,7 @@ function QRModal({ setQrScanned }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const hasScanned = useRef(false); // Controla si ya se escaneó un QR válido
+  const streamRef = useRef(null); // Guarda la referencia del stream para detenerlo después
 
   // Mapeo de códigos QR a rutas de la aplicación
   const qrRoutes = {
@@ -19,22 +20,19 @@ function QRModal({ setQrScanned }) {
       return;
     }
 
-    let stream = null;
     const barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
 
-    // Función para detener la cámara
     const stopCamera = () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
 
-    // Función de escaneo
     const scan = async () => {
       if (hasScanned.current || !videoRef.current) return;
 
       try {
-        const track = stream.getVideoTracks()[0];
+        const track = streamRef.current.getVideoTracks()[0];
         const imageCapture = new ImageCapture(track);
         const bitmap = await imageCapture.grabFrame();
         const barcodes = await barcodeDetector.detect(bitmap);
@@ -44,9 +42,12 @@ function QRModal({ setQrScanned }) {
 
           if (qrRoutes[qrValue]) {
             hasScanned.current = true; // Marcar como escaneado
-            stopCamera(); // Detener la cámara
+            stopCamera(); // Detener la cámara antes de navegar
             setQrScanned(true);
-            navigate(qrRoutes[qrValue]); // Redirigir
+
+            setTimeout(() => {
+              navigate(qrRoutes[qrValue]); // Redirigir después de un pequeño delay
+            }, 500);
           } else {
             setError("Código QR no reconocido. Intenta nuevamente.");
           }
@@ -56,17 +57,16 @@ function QRModal({ setQrScanned }) {
       }
 
       if (!hasScanned.current) {
-        setTimeout(scan, 1000); // Seguir escaneando cada segundo hasta encontrar un QR válido
+        setTimeout(scan, 1000); // Continuar escaneando si aún no se ha encontrado un QR válido
       }
     };
 
-    // Acceder a la cámara
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment" } })
       .then((videoStream) => {
-        stream = videoStream;
+        streamRef.current = videoStream;
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          videoRef.current.srcObject = videoStream;
           videoRef.current.play();
         }
         scan(); // Iniciar escaneo
