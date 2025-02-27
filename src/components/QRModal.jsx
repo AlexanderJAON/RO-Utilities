@@ -11,7 +11,7 @@ function QRModal({ setQrScanned }) {
   // Mapeo de códigos QR a rutas de la aplicación
   const qrRoutes = {
     "https://ro-utilities.vercel.app/roptai": "/roptai",
-    "https://ro-utilities.vercel.app/roptar": "/roptar",
+    "https://ro-utilities.vercel.app/roptar": "/roptar"
   };
 
   useEffect(() => {
@@ -41,8 +41,7 @@ function QRModal({ setQrScanned }) {
             const qrValue = barcodes[0].rawValue;
             if (qrRoutes[qrValue]) {
               setQrScanned(true);
-              navigate(qrRoutes[qrValue]);
-  
+              navigate(qrRoutes[qrValue], { replace: true });
               // 🔴 DETIENE EL ESCÁNER AL ENCONTRAR UN CÓDIGO QR
               stream.getTracks().forEach((track) => track.stop());
               return; // Evita que siga escaneando
