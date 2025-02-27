@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useInspectionQuestions from "../hooks/useInspectionQuestions";
+import useAnomalyHandler from "../hooks/useAnomalyHandler";
 import OperatorModal from "../components/OperatorModal";
 import "./ROPTAI.css";
 
@@ -10,9 +11,20 @@ const questions = [
 ];
 
 function ROPTAI() {
-  const { currentQuestion, handleSelection, selectedOption } = useInspectionQuestions(questions);
+  const { currentQuestion, handleSelection: handleQuestionSelection } = useInspectionQuestions(questions);
   const [operatorName, setOperatorName] = useState("");
   const [shift, setShift] = useState("");
+
+  const {
+    showAnomalyInput,
+    anomalyDescription,
+    setAnomalyDescription,
+    showNoticeQuestion,
+    noticeGiven,
+    setNoticeGiven,
+    handleSelection,
+    handleAnomalySubmit
+  } = useAnomalyHandler();
 
   return (
     <>
@@ -21,18 +33,38 @@ function ROPTAI() {
       ) : (
         <main className="inspection-container">
           <div className="inspection-question">
-            <p>{currentQuestion}</p>
+            <p>{showAnomalyInput ? "Describa la anomalía" : currentQuestion}</p>
           </div>
+
           <div className="response-buttons">
-            <button onClick={() => handleSelection("No se encontró anomalía")}>
-              No se encontró anomalía
-            </button>
-            <button onClick={() => handleSelection("Se encontró anomalía")}>
-              Se encontró anomalía
-            </button>
-            <button onClick={() => handleSelection("No se realizó")}>
-              No se realizó
-            </button>
+            {!showAnomalyInput ? (
+              <>
+                <button onClick={() => handleQuestionSelection("No se encontró anomalía")}>
+                  No se encontró anomalía
+                </button>
+                <button onClick={() => handleSelection("Se encontró anomalía")}>
+                  Se encontró anomalía
+                </button>
+                <button onClick={() => handleSelection("No se realizó")}>
+                  No se realizó
+                </button>
+              </>
+            ) : !showNoticeQuestion ? (
+              <>
+                <textarea
+                  placeholder="Describa la anomalía"
+                  value={anomalyDescription}
+                  onChange={(e) => setAnomalyDescription(e.target.value)}
+                />
+                <button onClick={handleAnomalySubmit}>Aceptar</button>
+              </>
+            ) : (
+              <>
+                <p>¿Se realizó aviso?</p>
+                <button onClick={() => setNoticeGiven("Sí")}>Sí</button>
+                <button onClick={() => setNoticeGiven("No")}>No</button>
+              </>
+            )}
           </div>
         </main>
       )}

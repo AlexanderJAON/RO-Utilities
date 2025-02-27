@@ -4,35 +4,48 @@
   color: #6CB33F; /* Verde Ingredion */
   padding: 20px;
   border-radius: 10px;
-  max-width: 600px;
-  margin: 90px auto 20px; /* Ajuste para no quedar tapado por el header */
+  width: 600px; /* Tamaño fijo */
+  margin: 90px auto 20px; /* Centrado */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Asegura que todo esté alineado */
 }
 
 /* Pregunta de inspección */
 .inspection-question p {
-  font-size: 18px;
+  font-size: 28px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 90%; /* Ajuste para que el texto no desborde */
 }
 
-/* Botones de respuesta */
+/* Contenedor de botones */
 .response-buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
+  align-items: center; /* Centra los botones */
 }
 
+/* Botones con tamaño fijo */
 .response-buttons button {
   padding: 12px;
   font-size: 16px;
   border: none;
   cursor: pointer;
   border-radius: 6px;
-  transition: background 0.3s ease, transform 0.2s ease-in-out;
   font-weight: bold;
+  width: 600px; /* Tamaño fijo para todos */
+  height: 50px; /* Asegura que tengan la misma altura */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Colores de los botones */
@@ -42,7 +55,7 @@
 }
 
 .response-buttons button:nth-child(2) {
-  background-color: #E5A623; /* Amarillo Ingredion (Mejor contraste) */
+  background-color: #E5A623; /* Amarillo Ingredion */
   color: black;
 }
 
@@ -61,16 +74,8 @@
 @media (max-width: 768px) {
   .inspection-container {
     width: 90%;
+    max-width: 600px;
     padding: 15px;
-    margin-top: 100px; /* Ajuste para evitar superposición con el header */
-  }
-
-  .inspection-question p {
-    font-size: 16px;
-  }
-
-  .response-buttons button {
-    font-size: 14px;
-    padding: 10px;
   }
 }
+
