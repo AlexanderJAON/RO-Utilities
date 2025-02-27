@@ -1,27 +1,35 @@
 import { useState } from "react";
+import { QrReader } from "react-qr-reader";
 
 function QRModal({ setQrScanned }) {
-  const [qrCode, setQrCode] = useState("");
+  const [error, setError] = useState("");
 
-  const handleScan = () => {
-    if (qrCode === "codigo-valido") { // Aquí puedes validar el QR escaneado
-      setQrScanned(true);
-    } else {
-      alert("QR inválido, intenta de nuevo.");
+  const handleScan = (result) => {
+    if (result) {
+      if (result.text === "codigo-valido") { // Ajusta según el QR esperado
+        setQrScanned(true);
+      } else {
+        setError("Código QR inválido, intenta de nuevo.");
+      }
     }
+  };
+
+  const handleError = (err) => {
+    console.error(err);
+    setError("Error al acceder a la cámara. Asegúrate de dar permisos.");
   };
 
   return (
     <div className="modal">
       <div className="modal-content">
         <h2>Escanea el código QR</h2>
-        <input
-          type="text"
-          placeholder="Simula escaneo de QR"
-          value={qrCode}
-          onChange={(e) => setQrCode(e.target.value)}
+        <QrReader
+          constraints={{ facingMode: "environment" }}
+          onResult={handleScan}
+          onError={handleError}
+          style={{ width: "100%" }}
         />
-        <button onClick={handleScan}>Confirmar</button>
+        {error && <p style={{ color: "red" }}>{error}</p>}
       </div>
     </div>
   );
