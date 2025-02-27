@@ -8,12 +8,15 @@ function QRModal({ setQrScanned }) {
   const hasScanned = useRef(false); // Controla si ya se escaneó un QR válido
   const streamRef = useRef(null); // Guarda la referencia del stream para detenerlo después
 
-  // Mapeo de códigos QR a rutas de la aplicación
-  const qrRoutes = {
-    "https://ro-utilities.vercel.app/roptai": "/roptai",
-    "https://ro-utilities.vercel.app/roptar": "/roptar"
-  };
+  const normalizeUrl = (url) => url.replace(/\/$/, ""); // Elimina `/` final
 
+  const qrRoutes = {
+    [normalizeUrl("https://ro-utilities.vercel.app/roptai")]: "/roptai",
+    [normalizeUrl("https://ro-utilities.vercel.app/roptar")]: "/roptar"
+  };
+  
+  // Dentro del escaneo:
+  const qrValue = normalizeUrl(barcodes[0].rawValue);
   useEffect(() => {
     if (!("BarcodeDetector" in window)) {
       setError("Tu navegador no soporta la detección de códigos QR.");
@@ -39,16 +42,17 @@ function QRModal({ setQrScanned }) {
           const barcodes = await barcodeDetector.detect(bitmap);
           if (barcodes.length > 0) {
             const qrValue = barcodes[0].rawValue;
+            console.log("QR Detectado:", qrValue); // 🟢 Agregar log de depuración
+            
             if (qrRoutes[qrValue]) {
               setQrScanned(true);
               navigate(qrRoutes[qrValue], { replace: true });
-              // 🔴 DETIENE EL ESCÁNER AL ENCONTRAR UN CÓDIGO QR
               stream.getTracks().forEach((track) => track.stop());
-              return; // Evita que siga escaneando
+              return;
             } else {
               setError("Código QR no reconocido.");
             }
-          }
+          }          
   
           requestAnimationFrame(scan);
         };
