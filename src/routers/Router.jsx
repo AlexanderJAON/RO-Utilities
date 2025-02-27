@@ -6,32 +6,29 @@ import Header from "../components/Header";
 import ROPTAR from "../roptar/ROPTAR";
 
 const Router = createBrowserRouter([
-   
     {
         path: "/roptai",
         element: (
-            <>
-                <Header/>
-                <ROPTAI/>
-                <ProtectedRoute><ROPTAI /></ProtectedRoute>
-            </>
-        )
+            <ProtectedRoute>
+                <Header />
+                <ROPTAI />
+            </ProtectedRoute>
+        ),
     },
     {
         path: "/roptar",
         element: (
-            <>
-                <Header/>
-                <ROPTAR/>
-                <ProtectedRoute><ROPTAR /></ProtectedRoute>
-            </>
-        )
+            <ProtectedRoute>
+                <Header />
+                <ROPTAR />
+            </ProtectedRoute>
+        ),
     },
     {
-        path: "*", // Captura cualquier ruta desconocida
+        path: "*",
         element: <Navigate to="/roptai" replace />,
-    }
-
+    },
 ]);
+
 
 export default Router;
