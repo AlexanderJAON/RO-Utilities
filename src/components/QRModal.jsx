@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 function QRModal({ setQrScanned }) {
   const videoRef = useRef(null);
   const [error, setError] = useState("");
-  const [isScanning, setIsScanning] = useState(true);
+  const [scanning, setScanning] = useState(true);
   const navigate = useNavigate();
 
   // Mapeo de códigos QR a rutas de la aplicación
@@ -21,57 +21,60 @@ function QRModal({ setQrScanned }) {
       return;
     }
 
-    let active = true; // Variable para controlar si el escaneo sigue activo
-    const barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
+    let barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
+    let stream;
+    let lastScanTime = 0;
 
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment" } })
-      .then((stream) => {
+      .then((videoStream) => {
+        stream = videoStream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
         }
 
-        const scan = async () => {
-          if (!videoRef.current || !isScanning || !active) return;
+        const scanInterval = setInterval(async () => {
+          if (!videoRef.current || !scanning) return;
 
-          const track = stream.getVideoTracks()[0];
-          const imageCapture = new ImageCapture(track);
-          const bitmap = await imageCapture.grabFrame();
+          const now = Date.now();
+          if (now - lastScanTime < 1000) return; // Evita escaneos repetidos en menos de 1 segundo
 
-          barcodeDetector
-            .detect(bitmap)
-            .then((barcodes) => {
-              if (barcodes.length > 0) {
-                const qrValue = barcodes[0].rawValue;
+          try {
+            const track = stream.getVideoTracks()[0];
+            const imageCapture = new ImageCapture(track);
+            const bitmap = await imageCapture.grabFrame();
+            const barcodes = await barcodeDetector.detect(bitmap);
 
-                if (qrRoutes[qrValue]) {
-                  setIsScanning(false);
-                  active = false; // Desactivar más escaneos
-                  setQrScanned(true);
-                  navigate(qrRoutes[qrValue]);
+            if (barcodes.length > 0) {
+              const qrValue = barcodes[0].rawValue;
+              if (qrRoutes[qrValue]) {
+                setScanning(false);
+                setQrScanned(true);
+                navigate(qrRoutes[qrValue]);
 
-                  // Detener la cámara
-                  stream.getTracks().forEach((track) => track.stop());
-                } else {
-                  setError("Código QR no reconocido.");
-                }
+                stream.getTracks().forEach((track) => track.stop());
+                clearInterval(scanInterval);
+              } else {
+                setError("Código QR no reconocido.");
               }
-            })
-            .catch((err) => console.error(err));
-        };
 
-        setTimeout(scan, 4000); // Pequeño retraso para evitar spam de escaneo
+              lastScanTime = now; // Guarda el tiempo del último escaneo exitoso
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }, 500); // Escanea cada 500ms
+
+        return () => {
+          clearInterval(scanInterval);
+          if (stream) {
+            stream.getTracks().forEach((track) => track.stop());
+          }
+        };
       })
       .catch((err) => setError("No se pudo acceder a la cámara."));
-
-    return () => {
-      active = false; // Evitar que el escaneo siga después de desmontar el componente
-      if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, [setQrScanned, navigate, isScanning]);
+  }, [setQrScanned, navigate, scanning]);
 
   return (
     <div className="modal">
