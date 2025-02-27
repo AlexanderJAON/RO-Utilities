@@ -61,7 +61,7 @@ function QRModal({ setQrScanned }) {
             .catch((err) => console.error(err));
         };
 
-        setTimeout(scan, 500); // Pequeño retraso para evitar spam de escaneo
+        setTimeout(scan, 4000); // Pequeño retraso para evitar spam de escaneo
       })
       .catch((err) => setError("No se pudo acceder a la cámara."));
 
