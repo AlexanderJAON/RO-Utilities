@@ -8,7 +8,7 @@ function QRModal({ setQrScanned }) {
 
   // Mapeo de códigos QR a rutas de la aplicación
   const qrRoutes = {
-    "https:ro-utilities.vercel.app/roptai": "/roptai",
+    "https://ro-utilities.vercel.app/roptai": "/roptai",
     "https://tu-web.com/perfil": "/perfil",
     "https://tu-web.com/configuracion": "/configuracion",
     "custom-code-123": "/personalizado", // Puedes usar códigos personalizados
