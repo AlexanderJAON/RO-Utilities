@@ -2,6 +2,7 @@ import { useState } from "react";
 import useInspectionQuestions from "../hooks/useInspectionQuestions";
 import useAnomalyHandler from "../hooks/useAnomalyHandler";
 import OperatorModal from "../components/OperatorModal";
+import QRModal from "../components/QRModal";
 import "./ROPTAI.css";
 
 const questions = [
@@ -12,6 +13,7 @@ const questions = [
 
 function ROPTAI() {
   const { currentQuestion, handleSelection: handleQuestionSelection } = useInspectionQuestions(questions);
+  const [qrScanned, setQrScanned] = useState(false);
   const [operatorName, setOperatorName] = useState("");
   const [shift, setShift] = useState("");
 
@@ -28,11 +30,12 @@ function ROPTAI() {
 
   return (
     <>
-      {!operatorName || !shift ? (
+      {!qrScanned ? (
+        <QRModal setQrScanned={setQrScanned} />
+      ) : !operatorName || !shift ? (
         <OperatorModal setOperatorName={setOperatorName} setShift={setShift} />
       ) : (
         <main className="inspection-container">
-          {/* Sección fija para que el tamaño no cambie */}
           <div className="inspection-content">
             <div className="inspection-question">
               <p>{showAnomalyInput ? "Describa la anomalía" : currentQuestion}</p>
@@ -56,7 +59,6 @@ function ROPTAI() {
                   <textarea
                     placeholder="Describa la anomalía"
                     value={anomalyDescription}
-                    onChange={(e) => setAnomalyDescription(e.target.value)}
                   />
                   <button onClick={handleAnomalySubmit}>Aceptar</button>
                 </>
