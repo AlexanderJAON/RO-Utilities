@@ -5,7 +5,7 @@ function QRModal({ setQrScanned }) {
   const videoRef = useRef(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const hasScanned = useRef(false); // Evita escaneos múltiples
+  const hasScanned = useRef(false); // Controla si ya se escaneó un QR válido
 
   // Mapeo de códigos QR a rutas de la aplicación
   const qrRoutes = {
@@ -19,53 +19,61 @@ function QRModal({ setQrScanned }) {
       return;
     }
 
+    let stream = null;
     const barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
 
+    // Función para detener la cámara
+    const stopCamera = () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
+
+    // Función de escaneo
+    const scan = async () => {
+      if (hasScanned.current || !videoRef.current) return;
+
+      try {
+        const track = stream.getVideoTracks()[0];
+        const imageCapture = new ImageCapture(track);
+        const bitmap = await imageCapture.grabFrame();
+        const barcodes = await barcodeDetector.detect(bitmap);
+
+        if (barcodes.length > 0) {
+          const qrValue = barcodes[0].rawValue;
+
+          if (qrRoutes[qrValue]) {
+            hasScanned.current = true; // Marcar como escaneado
+            stopCamera(); // Detener la cámara
+            setQrScanned(true);
+            navigate(qrRoutes[qrValue]); // Redirigir
+          } else {
+            setError("Código QR no reconocido. Intenta nuevamente.");
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      if (!hasScanned.current) {
+        setTimeout(scan, 1000); // Seguir escaneando cada segundo hasta encontrar un QR válido
+      }
+    };
+
+    // Acceder a la cámara
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment" } })
-      .then((stream) => {
+      .then((videoStream) => {
+        stream = videoStream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
         }
-
-        const scan = async () => {
-          if (hasScanned.current) return; // Evita escanear más de una vez
-
-          const track = stream.getVideoTracks()[0];
-          const imageCapture = new ImageCapture(track);
-          const bitmap = await imageCapture.grabFrame();
-
-          barcodeDetector
-            .detect(bitmap)
-            .then((barcodes) => {
-              if (barcodes.length > 0) {
-                const qrValue = barcodes[0].rawValue;
-
-                if (qrRoutes[qrValue]) {
-                  hasScanned.current = true; // Marcar como escaneado
-                  setQrScanned(true);
-                  navigate(qrRoutes[qrValue]);
-                } else {
-                  setError("Código QR no reconocido.");
-                }
-
-                // Detener la cámara después de escanear
-                stream.getTracks().forEach((track) => track.stop());
-              }
-            })
-            .catch((err) => console.error(err));
-        };
-
-        setTimeout(scan, 500); // Ejecuta el escaneo una sola vez después de medio segundo
+        scan(); // Iniciar escaneo
       })
       .catch(() => setError("No se pudo acceder a la cámara."));
 
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      }
-    };
+    return stopCamera; // Detener la cámara cuando el componente se desmonte
   }, [setQrScanned, navigate]);
 
   return (
