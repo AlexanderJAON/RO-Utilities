@@ -5,6 +5,7 @@ function QRModal({ setQrScanned }) {
   const videoRef = useRef(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const hasScanned = useRef(false); // Evita escaneos múltiples
 
   // Mapeo de códigos QR a rutas de la aplicación
   const qrRoutes = {
@@ -29,7 +30,8 @@ function QRModal({ setQrScanned }) {
         }
 
         const scan = async () => {
-          if (!videoRef.current) return;
+          if (hasScanned.current) return; // Evita escanear más de una vez
+
           const track = stream.getVideoTracks()[0];
           const imageCapture = new ImageCapture(track);
           const bitmap = await imageCapture.grabFrame();
@@ -40,25 +42,24 @@ function QRModal({ setQrScanned }) {
               if (barcodes.length > 0) {
                 const qrValue = barcodes[0].rawValue;
 
-                // Verificar si el código escaneado existe en el mapa de rutas
                 if (qrRoutes[qrValue]) {
+                  hasScanned.current = true; // Marcar como escaneado
                   setQrScanned(true);
-                  navigate(qrRoutes[qrValue]); // Redirige a la ruta correspondiente
+                  navigate(qrRoutes[qrValue]);
                 } else {
                   setError("Código QR no reconocido.");
                 }
 
+                // Detener la cámara después de escanear
                 stream.getTracks().forEach((track) => track.stop());
               }
             })
             .catch((err) => console.error(err));
-
-          requestAnimationFrame(scan);
         };
 
-        scan();
+        setTimeout(scan, 500); // Ejecuta el escaneo una sola vez después de medio segundo
       })
-      .catch((err) => setError("No se pudo acceder a la cámara."));
+      .catch(() => setError("No se pudo acceder a la cámara."));
 
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
@@ -81,4 +82,4 @@ function QRModal({ setQrScanned }) {
   );
 }
 
-export default QRModal; 
+export default QRModal;
