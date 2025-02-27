@@ -59,6 +59,7 @@ function ROPTAI() {
                   <textarea
                     placeholder="Describa la anomalía"
                     value={anomalyDescription}
+                    onChange={(e) => setAnomalyDescription(e.target.value)}
                   />
                   <button onClick={handleAnomalySubmit}>Aceptar</button>
                 </>
