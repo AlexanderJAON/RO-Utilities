@@ -4,15 +4,12 @@ import { useNavigate } from "react-router-dom";
 function QRModal({ setQrScanned }) {
   const videoRef = useRef(null);
   const [error, setError] = useState("");
-  const [scanning, setScanning] = useState(true);
   const navigate = useNavigate();
 
   // Mapeo de códigos QR a rutas de la aplicación
   const qrRoutes = {
     "https://ro-utilities.vercel.app/roptai": "/roptai",
     "https://ro-utilities.vercel.app/roptar": "/roptar",
-    "https://tu-web.com/configuracion": "/configuracion",
-    "custom-code-123": "/personalizado",
   };
 
   useEffect(() => {
@@ -21,60 +18,54 @@ function QRModal({ setQrScanned }) {
       return;
     }
 
-    let barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
-    let stream;
-    let lastScanTime = 0;
+    const barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
 
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment" } })
-      .then((videoStream) => {
-        stream = videoStream;
+      .then((stream) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
         }
 
-        const scanInterval = setInterval(async () => {
-          if (!videoRef.current || !scanning) return;
+        const scan = async () => {
+          if (!videoRef.current) return;
+          const track = stream.getVideoTracks()[0];
+          const imageCapture = new ImageCapture(track);
+          const bitmap = await imageCapture.grabFrame();
 
-          const now = Date.now();
-          if (now - lastScanTime < 1000) return; // Evita escaneos repetidos en menos de 1 segundo
+          barcodeDetector
+            .detect(bitmap)
+            .then((barcodes) => {
+              if (barcodes.length > 0) {
+                const qrValue = barcodes[0].rawValue;
 
-          try {
-            const track = stream.getVideoTracks()[0];
-            const imageCapture = new ImageCapture(track);
-            const bitmap = await imageCapture.grabFrame();
-            const barcodes = await barcodeDetector.detect(bitmap);
-
-            if (barcodes.length > 0) {
-              const qrValue = barcodes[0].rawValue;
-              if (qrRoutes[qrValue]) {
-                setScanning(false);
-                setQrScanned(true);
-                navigate(qrRoutes[qrValue]);
+                // Verificar si el código escaneado existe en el mapa de rutas
+                if (qrRoutes[qrValue]) {
+                  setQrScanned(true);
+                  navigate(qrRoutes[qrValue]); // Redirige a la ruta correspondiente
+                } else {
+                  setError("Código QR no reconocido.");
+                }
 
                 stream.getTracks().forEach((track) => track.stop());
-                clearInterval(scanInterval);
-              } else {
-                setError("Código QR no reconocido.");
               }
+            })
+            .catch((err) => console.error(err));
 
-              lastScanTime = now; // Guarda el tiempo del último escaneo exitoso
-            }
-          } catch (err) {
-            console.error(err);
-          }
-        }, 500); // Escanea cada 500ms
-
-        return () => {
-          clearInterval(scanInterval);
-          if (stream) {
-            stream.getTracks().forEach((track) => track.stop());
-          }
+          requestAnimationFrame(scan);
         };
+
+        scan();
       })
       .catch((err) => setError("No se pudo acceder a la cámara."));
-  }, [setQrScanned, navigate, scanning]);
+
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [setQrScanned, navigate]);
 
   return (
     <div className="modal">
@@ -90,4 +81,4 @@ function QRModal({ setQrScanned }) {
   );
 }
 
-export default QRModal;
+export default QRModal; 
