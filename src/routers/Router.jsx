@@ -3,7 +3,7 @@ import { createBrowserRouter , Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import ROPTAI from "../roptai/ROPTAI";
 import Header from "../components/Header";
-
+import ROPTAR from "../roptar/ROPTAR";
 
 const Router = createBrowserRouter([
    
@@ -14,6 +14,16 @@ const Router = createBrowserRouter([
                 <Header/>
                 <ROPTAI/>
                 <ProtectedRoute><ROPTAI /></ProtectedRoute>
+            </>
+        )
+    },
+    {
+        path: "/roptar",
+        element: (
+            <>
+                <Header/>
+                <ROPTAR/>
+                <ProtectedRoute><ROPTAR /></ProtectedRoute>
             </>
         )
     },
