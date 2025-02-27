@@ -30,11 +30,11 @@ function ROPTAR() {
 
   return (
     <>
-      {!qrScanned ? (
-        <QRModal setQrScanned={setQrScanned} />
-      ) : !operatorName || !shift ? (
-        <OperatorModal setOperatorName={setOperatorName} setShift={setShift} />
-      ) : (
+    {!qrScanned ? (
+      <QRModal setQrScanned={() => setQrScanned(true)} />
+    ) : !operatorName || !shift ? (
+      <OperatorModal setOperatorName={setOperatorName} setShift={setShift} />
+    ) : (
         <main className="inspection-container">
           <div className="inspection-content">
             <div className="inspection-question">
