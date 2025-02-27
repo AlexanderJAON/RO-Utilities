@@ -1,8 +1,18 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function QRModal({ setQrScanned }) {
   const videoRef = useRef(null);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  // Mapeo de códigos QR a rutas de la aplicación
+  const qrRoutes = {
+    "https:ro-utilities.vercel.app/roptai": "/roptai",
+    "https://tu-web.com/perfil": "/perfil",
+    "https://tu-web.com/configuracion": "/configuracion",
+    "custom-code-123": "/personalizado", // Puedes usar códigos personalizados
+  };
 
   useEffect(() => {
     if (!("BarcodeDetector" in window)) {
@@ -31,12 +41,16 @@ function QRModal({ setQrScanned }) {
             .then((barcodes) => {
               if (barcodes.length > 0) {
                 const qrValue = barcodes[0].rawValue;
-                if (qrValue === "codigo-valido") {
+
+                // Verificar si el código escaneado existe en el mapa de rutas
+                if (qrRoutes[qrValue]) {
                   setQrScanned(true);
-                  stream.getTracks().forEach((track) => track.stop()); // Detiene la cámara
+                  navigate(qrRoutes[qrValue]); // Redirige a la ruta correspondiente
                 } else {
-                  setError("Código QR inválido.");
+                  setError("Código QR no reconocido.");
                 }
+
+                stream.getTracks().forEach((track) => track.stop());
               }
             })
             .catch((err) => console.error(err));
@@ -53,7 +67,7 @@ function QRModal({ setQrScanned }) {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [setQrScanned]);
+  }, [setQrScanned, navigate]);
 
   return (
     <div className="modal">
