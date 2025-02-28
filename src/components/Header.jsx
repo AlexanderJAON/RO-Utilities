@@ -6,9 +6,9 @@ function Header() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const goToAcidification = () => navigate("/acidification");
+  const goToPtai = () => navigate("/roptai");
   const goToShortage = () => navigate("/shortage");
-  const goToPollution = () => navigate("/pollution");
+  const goToPtar = () => navigate("/roptar");
   const goToHome = () => navigate("/");
   const goToQuiz = () => navigate("/quiz");
 
@@ -22,8 +22,8 @@ function Header() {
           <ul className="menu-dropdown">
             <li><button onClick={goToHome}>COGEN</button></li>
             <li><button onClick={goToShortage}>HIDROGENO</button></li>
-            <li><button onClick={goToAcidification}>PTAI</button></li>
-            <li><button onClick={goToPollution}>PTAR</button></li>
+            <li><button onClick={goToPtai}>PTAI</button></li>
+            <li><button onClick={goToPtar}>PTAR</button></li>
             <li><button onClick={goToQuiz}>NIQUEL</button></li>
           </ul>
         )}
