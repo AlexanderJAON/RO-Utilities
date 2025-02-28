@@ -13,7 +13,7 @@ const Router = createBrowserRouter([
             <>
                 <Header/>
                 <ROPTAI/>
-                <ProtectedRoute><ROPTAI /></ProtectedRoute>
+                
             </>
         )
     },
@@ -23,14 +23,10 @@ const Router = createBrowserRouter([
             <>
                 <Header/>
                 <ROPTAR/>
-                <ProtectedRoute><ROPTAR /></ProtectedRoute>
+                
             </>
         )
     },
-    {
-        path: "*", // Captura cualquier ruta desconocida
-        element: <Navigate to="/roptai" replace />,
-    }
 
 ]);
 

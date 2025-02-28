@@ -5,7 +5,7 @@ const ProtectedRoute = ({ children })=> {
     const {user}= useAuthStore();
 
     if(!user){
-        return <Navigate to = "/roptai" replace/>
+        return <Navigate to = "/roptar" replace/>
     }
     return children;
 }
