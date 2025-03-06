@@ -1,27 +1,45 @@
 import { useState } from "react";
 
-const useInspectionQuestions = (initialQuestions) => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
+import { generateExcel, sendExcelByEmail } from "./exportToExcel";
 
-  const handleSelection = (option) => {
-    setSelectedOption(option);
-    if (option === "No se encontró anomalía") {
-      if (currentQuestionIndex < initialQuestions.length - 1) {
-        setTimeout(() => {
-          setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-          setSelectedOption(null); // Resetear selección
-        }, 500);
-      } else {
-        alert("Inspección completada.");
-      }
+const useInspectionQuestions = (initialQuestions, operatorName, shift) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [responses, setResponses] = useState([]);
+  const [inspectionCompleted, setInspectionCompleted] = useState(false);
+
+
+
+  const handleSelection = (option, anomalyDescription = "", noticeGiven = "") => {
+    const newResponse = {
+      question: initialQuestions[currentQuestionIndex],
+      response: option,
+      anomalyDescription: option === "Se encontró anomalía" ? anomalyDescription : "",
+      noticeGiven: option === "Se encontró anomalía" ? noticeGiven : "",
+    };
+  
+    const updatedResponses = [...responses, newResponse]; // ✅ Incluye la última respuesta
+  
+    setResponses(updatedResponses);
+  
+    if (currentQuestionIndex < initialQuestions.length - 1) {
+      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+    } else {
+      setInspectionCompleted(true);
+  
+      generateExcel(updatedResponses, operatorName, shift)
+        .then((filePath) => {
+          sendExcelByEmail(filePath);
+        })
+        .catch((error) => console.error("❌ Error generando/enviando el Excel:", error));
     }
   };
+  
 
   return {
     currentQuestion: initialQuestions[currentQuestionIndex],
     handleSelection,
-    selectedOption,
+    responses,
+    inspectionCompleted,
   };
 };
 
