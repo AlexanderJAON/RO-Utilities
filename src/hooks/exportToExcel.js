@@ -1,26 +1,4 @@
-[2:07 p. m., 6/3/2025] Jhon Alexander O: import * as XLSX from "xlsx";
-
-// 📌 Determinar la URL del servidor según el entorno
-const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://ro-utilities.vercel.app/api/send-email" // ✅ URL FIJA PARA PRODUCCIÓN
-    : "http://localhost:5000/api/send-email"; // 🛠️ URL LOCAL (AJUSTADO CON /api/)
-
-// 📌 Generar el archivo Excel
-export const generateExcel = async (data, operatorName, shift) => {
-  try {
-    if (!Array.isArray(data)) {
-      console.error("❌ Error: 'data' no es un array válido", data);
-      return null;
-    }
-
-    console.log("📌 Generando Excel para operador:", operatorName, "Turno:", shift);
-
-    const formattedData = data.map((item, index) => ({
-      "#": index + 1,
-      Pregunta: item.question || "N/A",
-      Respuesta: item…
-[2:09 p. m., 6/3/2025] Jhon Alexander O: import * as XLSX from "xlsx";
+import * as XLSX from "xlsx";
 
 const API_URL =
   process.env.NODE_ENV === "production"
