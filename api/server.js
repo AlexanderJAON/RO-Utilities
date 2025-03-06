@@ -17,7 +17,8 @@ app.use(cors());
 // 📌 Configurar subida de archivos
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadDir = process.env.VERCEL ? "/tmp/uploads" : path.join(__dirname, "uploads");
+const isProduction = process.env.NODE_ENV === "production";
+const uploadDir = isProduction ? "/tmp" : path.join(__dirname, "uploads");
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -28,33 +29,28 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
 const upload = multer({ storage });
 
-// 📌 Crear la carpeta si no existe
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
 console.log("📌 Carpeta de subida:", uploadDir);
 
-
+// 📌 Configuración de transporte de correo
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-app.post("/send-email", upload.single("file"), async (req, res) => {
+// 📌 Ruta para recibir el archivo y enviarlo por correo
+app.post("/api/send-email", upload.single("file"), async (req, res) => {
   try {
     console.log("📌 Archivo recibido:", req.file);
+
     if (!req.file) {
       return res.status(400).json({ message: "No se recibió ningún archivo" });
     }
@@ -63,9 +59,9 @@ app.post("/send-email", upload.single("file"), async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: "alexanderosma06@gmail.com",
-      subject: "Reporte de Inspección",
+      subject: "📌 Reporte de Inspección",
       text: "Adjunto el reporte de inspección.",
-      attachments: [{ filename: req.file.filename, path: filePath }],
+      attachments: [{ filename: req.file.originalname, path: filePath }],
     };
 
     await transporter.sendMail(mailOptions);
@@ -74,15 +70,15 @@ app.post("/send-email", upload.single("file"), async (req, res) => {
     fs.unlinkSync(filePath);
     console.log(`🗑️ Archivo eliminado: ${filePath}`);
 
-    res.status(200).json({ message: "Correo enviado y archivo eliminado" });
+    res.status(200).json({ message: "📧 Correo enviado correctamente" });
   } catch (error) {
     console.error("❌ Error enviando el correo:", error);
-    res.status(500).json({ message: "Error al enviar correo", error });
+    res.status(500).json({ message: "❌ Error al enviar correo", error });
   }
 });
 
-// 📌 Si está en Vercel, exportamos `app`, si no, lo ejecutamos localmente
-if (process.env.NODE_ENV !== "production") {
+// 📌 Si está en Vercel, exportamos `app`, si no, ejecutamos el servidor localmente
+if (!isProduction) {
   app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   });
