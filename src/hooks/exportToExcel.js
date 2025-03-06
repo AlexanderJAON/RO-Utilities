@@ -70,13 +70,21 @@ export const sendExcelByEmail = async (data, operatorName, shift) => {
       body: formData,
     });
 
-    const result = await response.json();
-    console.log("✅ Respuesta del servidor:", result);
-
+    // 📌 Validar si la respuesta de la API es válida
     if (!response.ok) {
-      throw new Error(`❌ Error al enviar el correo: ${result.message || response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`❌ Error del servidor: ${errorText}`);
     }
 
+    // 📌 Intentar parsear JSON, si falla mostrar error
+    let result;
+    try {
+      result = await response.json();
+    } catch (jsonError) {
+      throw new Error("❌ La respuesta del servidor no es un JSON válido");
+    }
+
+    console.log("✅ Respuesta del servidor:", result);
     alert("✅ El reporte de inspección se ha enviado correctamente.");
   } catch (error) {
     console.error("❌ Error enviando el correo:", error);
