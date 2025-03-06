@@ -13,7 +13,7 @@ const questions = [
 ];
 
 function ROPTAI() {
-  const [qrScanned, setQrScanned] = useState(true);
+  const [qrScanned, setQrScanned] = useState(false);
   const [operatorName, setOperatorName] = useState("");
   const [shift, setShift] = useState("");
 
