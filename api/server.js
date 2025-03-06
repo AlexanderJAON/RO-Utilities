@@ -7,19 +7,18 @@ import fs from "fs";
 import cors from "cors";
 import dotenv from "dotenv";
 
-dotenv.config(); // Cargar variables de entorno
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 📌 Configurar CORS para permitir solicitudes desde el frontend
 app.use(cors());
 
 // 📌 Configurar subida de archivos
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const uploadDir = path.join(__dirname, "uploads");
+
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -35,28 +34,24 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// 📌 Configurar transporte de correo
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
-    user: process.env.EMAIL_USER, // 📌 Configurar en .env
+    user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-// 📌 Ruta para recibir y enviar el archivo por correo
 app.post("/send-email", upload.single("file"), async (req, res) => {
   try {
     console.log("📌 Archivo recibido:", req.file);
-
     if (!req.file) {
       return res.status(400).json({ message: "No se recibió ningún archivo" });
     }
 
     const filePath = path.join(uploadDir, req.file.filename);
-
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: "alexanderosma06@gmail.com",
@@ -68,7 +63,6 @@ app.post("/send-email", upload.single("file"), async (req, res) => {
     await transporter.sendMail(mailOptions);
     console.log("✅ Correo enviado con éxito");
 
-    // 🔥 Eliminar el archivo después de enviarlo
     fs.unlinkSync(filePath);
     console.log(`🗑️ Archivo eliminado: ${filePath}`);
 
@@ -79,7 +73,11 @@ app.post("/send-email", upload.single("file"), async (req, res) => {
   }
 });
 
-// 📌 Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-});
+// 📌 Si está en Vercel, exportamos `app`, si no, lo ejecutamos localmente
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  });
+}
+
+export default app;
