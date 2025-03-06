@@ -3,7 +3,7 @@ import * as XLSX from "xlsx";
 // 📌 Determinar la URL del servidor según el entorno
 const API_URL =
   process.env.NODE_ENV === "production"
-    ? "https://ro-utilities.vercel.app/api/send-email" // ✅ URL FIJA PARA PRODUCCIÓN
+    ? "https://ro-utilities.vercel.app/send-email" // ✅ URL FIJA PARA PRODUCCIÓN
     : "http://localhost:5000/send-email"; // 🛠️ URL LOCAL
 
 
