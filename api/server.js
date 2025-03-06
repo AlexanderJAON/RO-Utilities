@@ -17,7 +17,7 @@ app.use(cors());
 // 📌 Configurar subida de archivos
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadDir = path.join(__dirname, "uploads");
+const uploadDir = process.env.VERCEL ? "/tmp/uploads" : path.join(__dirname, "uploads");
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -33,6 +33,14 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+// 📌 Crear la carpeta si no existe
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+console.log("📌 Carpeta de subida:", uploadDir);
+
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
