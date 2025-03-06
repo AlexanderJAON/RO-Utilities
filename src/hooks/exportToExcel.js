@@ -1,8 +1,13 @@
 import * as XLSX from "xlsx";
 
+// 📌 Determinar la URL del servidor según el entorno
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? `${window.location.origin}/api/send-email` // ✅ URL automática en producción
+    : "http://localhost:5000/send-email"; // 🛠️ URL local para desarrollo
+
 export const generateExcel = async (data, operatorName, shift) => {
   try {
-    // Validación de data
     if (!Array.isArray(data)) {
       console.error("❌ Error: 'data' no es un array válido", data);
       return null;
@@ -18,7 +23,6 @@ export const generateExcel = async (data, operatorName, shift) => {
       "Aviso Realizado": item.noticeGiven || "No",
     }));
 
-    // Insertar operador y turno en la primera fila
     formattedData.unshift({
       "#": "Operador",
       Pregunta: operatorName || "N/A",
@@ -27,17 +31,14 @@ export const generateExcel = async (data, operatorName, shift) => {
       "Aviso Realizado": "",
     });
 
-    // Crear hoja y libro de Excel
     const ws = XLSX.utils.json_to_sheet(formattedData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Inspección");
 
-    // Guardar en un Blob
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     return new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-
   } catch (error) {
     console.error("❌ Error generando el archivo Excel:", error);
     return null;
@@ -50,34 +51,40 @@ export const sendExcelByEmail = async (data, operatorName, shift) => {
     const file = await generateExcel(data, operatorName, shift);
 
     if (!file) {
+      console.error("❌ No se pudo generar el archivo Excel.");
       return;
     }
 
-    // Crear objeto File con nombre correcto
     const fileToSend = new File([file], `Inspeccion_${operatorName}.xlsx`, {
       type: file.type,
     });
 
     console.log("📌 Archivo generado:", fileToSend.name);
+    console.log("📌 Enviando a:", API_URL);
 
-    // Preparar FormData para enviar el archivo
     const formData = new FormData();
     formData.append("file", fileToSend);
 
-    // Enviar al backend
-    const response = await fetch("http://localhost:5000/send-email", {
+    const response = await fetch(API_URL, {
       method: "POST",
       body: formData,
     });
 
-    // Capturar respuesta del backend
-    const result = await response.json();
-    console.log("✅ Respuesta del servidor:", result);
-
+    // 📌 Validar si la respuesta de la API es válida
     if (!response.ok) {
-      throw new Error(`❌ Error al enviar el correo: ${result.message || response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`❌ Error del servidor: ${errorText}`);
     }
 
+    // 📌 Intentar parsear JSON, si falla mostrar error
+    let result;
+    try {
+      result = await response.json();
+    } catch (jsonError) {
+      throw new Error("❌ La respuesta del servidor no es un JSON válido");
+    }
+
+    console.log("✅ Respuesta del servidor:", result);
     alert("✅ El reporte de inspección se ha enviado correctamente.");
   } catch (error) {
     console.error("❌ Error enviando el correo:", error);
