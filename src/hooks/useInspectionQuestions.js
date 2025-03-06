@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { generateExcel, sendExcelByEmail } from "./exportToExcel";
 
 const useInspectionQuestions = (initialQuestions, operatorName, shift) => {
