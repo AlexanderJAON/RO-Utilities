@@ -4,14 +4,11 @@
     {
       "src": "api/server.js",
       "use": "@vercel/node"
-<<<<<<< HEAD
     },
     {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist" }
-=======
->>>>>>> 708f1528d49dd692e53a9b5be35606ed5d829239
     }
   ],
   "routes": [
@@ -25,4 +22,3 @@
     }
   ]
 }
-
