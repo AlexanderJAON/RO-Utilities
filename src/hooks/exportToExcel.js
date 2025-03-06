@@ -3,9 +3,10 @@ import * as XLSX from "xlsx";
 // 📌 Determinar la URL del servidor según el entorno
 const API_URL =
   process.env.NODE_ENV === "production"
-    ? `${window.location.origin}/api/send-email` // ✅ URL automática en producción
-    : "http://localhost:5000/send-email"; // 🛠️ URL local para desarrollo
+    ? "https://ro-utilities.vercel.app/api/send-email" // ✅ URL FIJA PARA PRODUCCIÓN
+    : "http://localhost:5000/api/send-email"; // 🛠️ URL LOCAL (AJUSTADO CON /api/)
 
+// 📌 Generar el archivo Excel
 export const generateExcel = async (data, operatorName, shift) => {
   try {
     if (!Array.isArray(data)) {
@@ -45,6 +46,7 @@ export const generateExcel = async (data, operatorName, shift) => {
   }
 };
 
+// 📌 Enviar el archivo Excel por correo
 export const sendExcelByEmail = async (data, operatorName, shift) => {
   try {
     console.log("📌 Iniciando proceso de envío de Excel...");
@@ -68,11 +70,15 @@ export const sendExcelByEmail = async (data, operatorName, shift) => {
     const response = await fetch(API_URL, {
       method: "POST",
       body: formData,
+      headers: {
+        enctype: "multipart/form-data", // Asegura la correcta transmisión del archivo
+      },
     });
 
     // 📌 Validar si la respuesta de la API es válida
     if (!response.ok) {
       const errorText = await response.text();
+      console.error("❌ Error del servidor:", errorText);
       throw new Error(`❌ Error del servidor: ${errorText}`);
     }
 
