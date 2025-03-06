@@ -58,7 +58,7 @@ app.post("/api/send-email", upload.single("file"), async (req, res) => {
     const filePath = path.join(uploadDir, req.file.filename);
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "alexanderosma06@gmail.com",
+      to: "jhonalexander.osma@ingredion.com",
       subject: "📌 Reporte de Inspección",
       text: "Adjunto el reporte de inspección.",
       attachments: [{ filename: req.file.originalname, path: filePath }],
