@@ -45,6 +45,17 @@ export const generateExcel = async (data, operatorName, shift, date) => {
 
     // Crear la hoja de cálculo
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+    // Crear la tabla
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    const table = {
+      ref: XLSX.utils.encode_range(range),
+      cols: headers.map(header => ({ name: header })),
+      rows: rows.map(row => row.map(cell => ({ v: cell })))
+    };
+
+    ws['!table'] = table;
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Inspección");
 
