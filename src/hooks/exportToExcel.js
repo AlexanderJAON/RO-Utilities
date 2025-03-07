@@ -57,7 +57,7 @@ export const sendExcelByEmail = async (data, operatorName, shift) => {
       return;
     }
 
-    const fileToSend = new File([file], Inspeccion_${operatorName}.xlsx, {
+    const fileToSend = new File([file], `Inspeccion_${operatorName}.xlsx`, {
       type: file.type,
     });
 
@@ -79,7 +79,7 @@ export const sendExcelByEmail = async (data, operatorName, shift) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("❌ Error del servidor:", errorText);
-      throw new Error(❌ Error del servidor: ${errorText});
+      throw new Error(`❌ Error del servidor: ${errorText}`);
     }
 
     // 📌 Intentar parsear JSON, si falla mostrar error
