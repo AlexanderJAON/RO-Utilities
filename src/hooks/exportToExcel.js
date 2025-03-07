@@ -7,7 +7,7 @@ const API_URL =
     : "http://localhost:5000/api/send-email"; // 🛠️ URL LOCAL (AJUSTADO CON /api/)
 
 // 📌 Generar el archivo Excel
-export const generateExcel = async (data, operatorName, shift) => {
+export const generateExcel = async (data, operatorName, shift, date) => {
   try {
     if (!Array.isArray(data)) {
       console.error("❌ Error: 'data' no es un array válido", data);
@@ -16,26 +16,39 @@ export const generateExcel = async (data, operatorName, shift) => {
 
     console.log("📌 Generando Excel para operador:", operatorName, "Turno:", shift);
 
-    const formattedData = data.map((item, index) => ({
-      "#": index + 1,
-      Pregunta: item.question || "N/A",
-      Respuesta: item.response || "N/A",
-      "Descripción de la Anomalía": item.anomalyDescription || "No",
-      "Aviso Realizado": item.noticeGiven || "No",
-    }));
+    // Crear la estructura del Excel
+    const headers = [
+      "Fecha",
+      "Turno",
+      "Nombre",
+      ...data.map(item => item.question),
+      "Descripción"
+    ];
 
-    formattedData.unshift({
-      "#": "Operador",
-      Pregunta: operatorName || "N/A",
-      Respuesta: "Turno",
-      "Descripción de la Anomalía": shift || "N/A",
-      "Aviso Realizado": "",
-    });
+    const rows = [
+      [
+        date,
+        shift,
+        operatorName,
+        ...data.map(item => item.response),
+        data.map(item => {
+          if (item.response === "Se encontró anomalía") {
+            return `${item.question}: ${item.anomalyDescription}. ¿Se realizó aviso? ${item.noticeGiven}`;
+          } else if (item.response === "No se realizó") {
+            return `${item.question}: No se realizó. ¿Por qué? ${item.notPerformedReason}`;
+          } else {
+            return "";
+          }
+        }).filter(desc => desc !== "").join(" /// ")
+      ]
+    ];
 
-    const ws = XLSX.utils.json_to_sheet(formattedData);
+    // Crear la hoja de cálculo
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Inspección");
 
+    // Generar el buffer del archivo Excel
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     return new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -47,10 +60,10 @@ export const generateExcel = async (data, operatorName, shift) => {
 };
 
 // 📌 Enviar el archivo Excel por correo
-export const sendExcelByEmail = async (data, operatorName, shift) => {
+export const sendExcelByEmail = async (data, operatorName, shift, date) => {
   try {
     console.log("📌 Iniciando proceso de envío de Excel...");
-    const file = await generateExcel(data, operatorName, shift);
+    const file = await generateExcel(data, operatorName, shift, date);
 
     if (!file) {
       console.error("❌ No se pudo generar el archivo Excel.");

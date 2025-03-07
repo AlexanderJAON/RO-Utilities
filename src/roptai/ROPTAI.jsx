@@ -1,9 +1,8 @@
 import { useState } from "react";
-import useInspectionQuestions from "../hooks/useInspectionQuestions";
-import useAnomalyHandler from "../hooks/useAnomalyHandler";
-import { generateExcel, sendExcelByEmail } from "../hooks/exportToExcel";
+import useInspectionForm from "../hooks/useInspectionForm";
 import OperatorModal from "../components/OperatorModal";
 import QRModal from "../components/QRModal";
+import InspectionForm from "../components/InspectionForm";
 import "./ROPTAI.css";
 
 const questions = [
@@ -28,79 +27,21 @@ const questions = [
 ];
 
 function ROPTAI() {
-  const [qrScanned, setQrScanned] = useState(false);
+  const [qrScanned, setQrScanned] = useState(true);
   const [operatorName, setOperatorName] = useState("");
   const [shift, setShift] = useState("");
+  const [date, setDate] = useState("");
 
-  const { currentQuestion, handleSelection: handleQuestionSelection, inspectionCompleted, responses } =
-    useInspectionQuestions(questions, operatorName, shift);
-
-  const {
-    showAnomalyInput,
-    anomalyDescription,
-    setAnomalyDescription,
-    showNoticeQuestion,
-    noticeGiven,
-    setNoticeGiven,
-    handleSelection,
-    handleAnomalySubmit,
-  } = useAnomalyHandler();
-
-  const handleExport = () => {
-    generateExcel(responses, operatorName, shift);
-    sendExcelByEmail(responses, operatorName, shift);
-    alert("El reporte de inspección se ha enviado correctamente.");
-  };
+  const inspectionFormProps = useInspectionForm(questions, operatorName, shift, date);
 
   return (
     <>
       {!qrScanned ? (
         <QRModal setQrScanned={setQrScanned} />
-      ) : !operatorName || !shift ? (
-        <OperatorModal setOperatorName={setOperatorName} setShift={setShift} />
+      ) : !operatorName || !shift || !date ? (
+        <OperatorModal setOperatorName={setOperatorName} setShift={setShift} setDate={setDate} />
       ) : (
-        <main className="inspection-container">
-          <div className="inspection-content">
-            {!inspectionCompleted ? (
-              <>
-                <div className="inspection-question">
-                  <p>{showAnomalyInput ? "Describa la anomalía" : currentQuestion}</p>
-                </div>
-                <div className="response-buttons">
-                  {!showAnomalyInput ? (
-                    <>
-                      <button onClick={() => handleQuestionSelection("No se encontró anomalía")}>
-                        No se encontró anomalía
-                      </button>
-                      <button onClick={() => handleSelection("Se encontró anomalía")}>Se encontró anomalía</button>
-                      <button onClick={() => handleSelection("No se realizó")}>No se realizó</button>
-                    </>
-                  ) : !showNoticeQuestion ? (
-                    <>
-                      <textarea
-                        placeholder="Describa la anomalía"
-                        value={anomalyDescription}
-                        onChange={(e) => setAnomalyDescription(e.target.value)}
-                      />
-                      <button onClick={handleAnomalySubmit}>Aceptar</button>
-                    </>
-                  ) : (
-                    <>
-                      <p>¿Se realizó aviso?</p>
-                      <button onClick={() => setNoticeGiven("Sí")}>Sí</button>
-                      <button onClick={() => setNoticeGiven("No")}>No</button>
-                    </>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <h2>Inspección completada</h2>
-                <button onClick={handleExport}>Enviar Excel por Correo</button>
-              </>
-            )}
-          </div>
-        </main>
+        <InspectionForm {...inspectionFormProps} />
       )}
     </>
   );

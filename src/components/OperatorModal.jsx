@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import "./OperatorModal.css";
 
-const OperatorModal = ({ setOperatorName, setShift }) => {
+const OperatorModal = ({ setOperatorName, setShift, setDate }) => {
   const [operator, setOperator] = useState("");
   const [selectedShift, setSelectedShift] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
 
   const handleConfirm = () => {
-    if (operator && selectedShift) {
+    if (operator && selectedShift && selectedDate) {
       setOperatorName(operator);
       setShift(selectedShift);
+      setDate(selectedDate);
     } else {
-      alert("Por favor, ingrese su nombre y seleccione un turno.");
+      alert("Por favor, ingrese su nombre, seleccione un turno y una fecha.");
     }
   };
 
@@ -30,6 +32,11 @@ const OperatorModal = ({ setOperatorName, setShift }) => {
           <option value="tarde">Tarde</option>
           <option value="noche">Noche</option>
         </select>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
         <button onClick={handleConfirm}>Confirmar</button>
       </div>
     </div>

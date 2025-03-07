@@ -20,6 +20,14 @@ function useAnomalyHandler() {
     }
   };
 
+  const handleNoticeGiven = (notice) => {
+    setNoticeGiven(notice);
+    setAnomalyDescription((prev) => `${prev}. ¿Se realizó aviso? ${notice}`);
+    setShowNoticeQuestion(false); // Ocultar la pregunta de aviso después de seleccionar
+    setShowAnomalyInput(false); // Ocultar el input de descripción después de seleccionar
+    setAnomalyDescription(""); // Limpiar el input de descripción después de seleccionar
+  };
+
   const resetAnomalyState = () => {
     setShowAnomalyInput(false);
     setAnomalyDescription("");
@@ -36,6 +44,7 @@ function useAnomalyHandler() {
     setNoticeGiven,
     handleSelection,
     handleAnomalySubmit,
+    handleNoticeGiven,
     resetAnomalyState
   };
 }
