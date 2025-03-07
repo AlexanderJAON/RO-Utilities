@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import ExcelJS from 'exceljs';
 
 // 📌 Determinar la URL del servidor según el entorno
 const API_URL =
@@ -6,7 +6,7 @@ const API_URL =
     ? "https://ro-utilities.vercel.app/api/send-email" // ✅ URL FIJA PARA PRODUCCIÓN
     : "http://localhost:5000/api/send-email"; // 🛠️ URL LOCAL (AJUSTADO CON /api/)
 
-// 📌 Generar el archivo Excel
+// 📌 Generar el archivo Excel con formato de tabla
 export const generateExcel = async (data, operatorName, shift, date) => {
   try {
     if (!Array.isArray(data)) {
@@ -14,9 +14,12 @@ export const generateExcel = async (data, operatorName, shift, date) => {
       return null;
     }
 
-    console.log("📌 Generando Excel para operador:", operatorName, "Turno:", shift);
+    console.log("📌 Generando Excel con formato de tabla...");
 
-    // Crear la estructura del Excel
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Inspección");
+
+    // 📌 Definir las cabeceras
     const headers = [
       "Fecha",
       "Turno",
@@ -25,13 +28,14 @@ export const generateExcel = async (data, operatorName, shift, date) => {
       "Descripción"
     ];
 
-    const rows = [
-      [
-        date,
-        shift,
-        operatorName,
-        ...data.map(item => item.response),
-        data.map(item => {
+    // 📌 Agregar los datos
+    const rowData = [
+      date,
+      shift,
+      operatorName,
+      ...data.map(item => item.response),
+      data
+        .map(item => {
           if (item.response === "Se encontró anomalía") {
             return `${item.question}: ${item.anomalyDescription}. ¿Se realizó aviso? ${item.noticeGiven}`;
           } else if (item.response === "No se realizó") {
@@ -39,29 +43,35 @@ export const generateExcel = async (data, operatorName, shift, date) => {
           } else {
             return "";
           }
-        }).filter(desc => desc !== "").join(" /// ")
-      ]
+        })
+        .filter(desc => desc !== "")
+        .join(" /// ")
     ];
 
-    // Crear la hoja de cálculo
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    // 📌 Agregar encabezados y filas a la hoja de trabajo
+    worksheet.addRow(headers).font = { bold: true }; // Hacer los encabezados en negrita
+    worksheet.addRow(rowData);
 
-    // Crear la tabla
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    const table = {
-      ref: XLSX.utils.encode_range(range),
-      cols: headers.map(header => ({ name: header })),
-      rows: rows.map(row => row.map(cell => ({ v: cell })))
-    };
+    // 📌 Crear la tabla con el formato de tabla "TableStyleLight21"
+    worksheet.addTable({
+      name: 'Inspección',
+      ref: 'A1',
+      headerRow: true,
+      style: {
+        theme: 'TableStyleLight21',
+        showRowStripes: true,
+      },
+      columns: headers.map(header => ({ name: header })),
+      rows: [rowData],
+    });
 
-    ws['!table'] = table;
+    worksheet.columns.forEach(col => {
+      col.width = 20; // Ajustar ancho de columna automáticamente
+    });
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Inspección");
-
-    // Generar el buffer del archivo Excel
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    return new Blob([excelBuffer], {
+    // 📌 Generar el archivo en un buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    return new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
   } catch (error) {
@@ -81,7 +91,8 @@ export const sendExcelByEmail = async (data, operatorName, shift, date) => {
       return;
     }
 
-    const fileToSend = new File([file], `Inspeccion_${operatorName}.xlsx`, {
+    // Establecer un nombre fijo para el archivo de reporte
+    const fileToSend = new File([file], `Reporte_Inspeccion.xlsx`, {
       type: file.type,
     });
 
