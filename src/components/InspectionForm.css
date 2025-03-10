@@ -1,0 +1,114 @@
+/* Asegurar que todo el contenido dentro respete su tamaño */
+.inspection-container * {
+  box-sizing: border-box;
+}
+
+/* Contenedor principal */
+.inspection-container {
+  background-color: #F4F4F4; /* Fondo gris claro */
+  color: #6CB33F; /* Verde Ingredion */
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px; /* Tamaño fijo */
+  width: 90%;
+  margin: 90px auto 20px; /* Centrado */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Contenido del modal para evitar cambios de tamaño */
+.inspection-content {
+  min-height: 200px; /* Define una altura mínima para evitar saltos */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Pregunta de inspección */
+.inspection-question p {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Contenedor de botones */
+.response-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Botones con tamaño fijo */
+.response-buttons button {
+  background-color: #6CB33F; /* Verde Ingredion */
+  color: white;
+  font-size: 16px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.3s ease, transform 0.2s ease-in-out;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Colores específicos de botones */
+.response-buttons button:nth-child(2) {
+  background-color: #E5A623; /* Amarillo Ingredion */
+  color: black;
+}
+
+.response-buttons button:nth-child(3) {
+  background-color: #DBD949; /* Amarillo más suave */
+  color: black;
+}
+
+/* Efecto Hover */
+.response-buttons button:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+/* Área de texto */
+textarea {
+  width: 100%;
+  height: 80px;
+  border: 2px solid #6CB33F;
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 10px;
+  resize: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .inspection-container {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .inspection-question p {
+    font-size: 18px;
+  }
+
+  .response-buttons button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  textarea {
+    font-size: 14px;
+    padding: 8px;
+  }
+}

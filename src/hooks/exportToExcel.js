@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import ExcelJS from 'exceljs';
 
 // 📌 Determinar la URL del servidor según el entorno
 const API_URL =
@@ -6,38 +6,72 @@ const API_URL =
     ? "https://ro-utilities.vercel.app/api/send-email" // ✅ URL FIJA PARA PRODUCCIÓN
     : "http://localhost:5000/api/send-email"; // 🛠️ URL LOCAL (AJUSTADO CON /api/)
 
-// 📌 Generar el archivo Excel
-export const generateExcel = async (data, operatorName, shift) => {
+// 📌 Generar el archivo Excel con formato de tabla
+export const generateExcel = async (data, operatorName, shift, date) => {
   try {
     if (!Array.isArray(data)) {
       console.error("❌ Error: 'data' no es un array válido", data);
       return null;
     }
 
-    console.log("📌 Generando Excel para operador:", operatorName, "Turno:", shift);
+    console.log("📌 Generando Excel con formato de tabla...");
 
-    const formattedData = data.map((item, index) => ({
-      "#": index + 1,
-      Pregunta: item.question || "N/A",
-      Respuesta: item.response || "N/A",
-      "Descripción de la Anomalía": item.anomalyDescription || "No",
-      "Aviso Realizado": item.noticeGiven || "No",
-    }));
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Inspección");
 
-    formattedData.unshift({
-      "#": "Operador",
-      Pregunta: operatorName || "N/A",
-      Respuesta: "Turno",
-      "Descripción de la Anomalía": shift || "N/A",
-      "Aviso Realizado": "",
+    // 📌 Definir las cabeceras
+    const headers = [
+      "Fecha",
+      "Turno",
+      "Nombre",
+      ...data.map(item => item.question),
+      "Descripción"
+    ];
+
+    // 📌 Agregar los datos
+    const rowData = [
+      date,
+      shift,
+      operatorName,
+      ...data.map(item => item.response),
+      data
+        .map(item => {
+          if (item.response === "Se encontró anomalía") {
+            return `${item.question}: ${item.anomalyDescription}. ¿Se realizó aviso? ${item.noticeGiven}`;
+          } else if (item.response === "No se realizó") {
+            return `${item.question}: No se realizó. ¿Por qué? ${item.notPerformedReason}`;
+          } else {
+            return "";
+          }
+        })
+        .filter(desc => desc !== "")
+        .join(" /// ")
+    ];
+
+    // 📌 Agregar encabezados y filas a la hoja de trabajo
+    worksheet.addRow(headers).font = { bold: true }; // Hacer los encabezados en negrita
+    worksheet.addRow(rowData);
+
+    // 📌 Crear la tabla con el formato de tabla "TableStyleLight21"
+    worksheet.addTable({
+      name: 'Inspección',
+      ref: 'A1',
+      headerRow: true,
+      style: {
+        theme: 'TableStyleLight21',
+        showRowStripes: true,
+      },
+      columns: headers.map(header => ({ name: header })),
+      rows: [rowData],
     });
 
-    const ws = XLSX.utils.json_to_sheet(formattedData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Inspección");
+    worksheet.columns.forEach(col => {
+      col.width = 20; // Ajustar ancho de columna automáticamente
+    });
 
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    return new Blob([excelBuffer], {
+    // 📌 Generar el archivo en un buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    return new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
   } catch (error) {
@@ -47,17 +81,18 @@ export const generateExcel = async (data, operatorName, shift) => {
 };
 
 // 📌 Enviar el archivo Excel por correo
-export const sendExcelByEmail = async (data, operatorName, shift) => {
+export const sendExcelByEmail = async (data, operatorName, shift, date) => {
   try {
     console.log("📌 Iniciando proceso de envío de Excel...");
-    const file = await generateExcel(data, operatorName, shift);
+    const file = await generateExcel(data, operatorName, shift, date);
 
     if (!file) {
       console.error("❌ No se pudo generar el archivo Excel.");
       return;
     }
 
-    const fileToSend = new File([file], `Inspeccion_${operatorName}.xlsx`, {
+    // Establecer un nombre fijo para el archivo de reporte
+    const fileToSend = new File([file], `Reporte_Inspeccion.xlsx`, {
       type: file.type,
     });
 
